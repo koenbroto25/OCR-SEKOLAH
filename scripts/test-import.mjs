@@ -30,7 +30,7 @@ async function call(file, { method = 'POST', body = {}, headers = {}, query = {}
 }
 
 // Auth admin via bcrypt langsung (meniru login)
-const { signToken } = await import(pathToFileURL(path.join(__dirname, '..', 'api/_lib/auth.js')).href);
+const { signToken } = await import(pathToFileURL(path.join(__dirname, '..', 'server/_lib/auth.js')).href);
 const adminToken = signToken({ id: 'admin', email: 'admin@sekolah.local', role: 'admin' }, '1h');
 // Node/Vercel selalu lowercase nama header
 const authHeaders = { authorization: `Bearer ${adminToken}` };
@@ -44,11 +44,11 @@ function check(name, cond, extra = '') {
 console.log('=== TES IMPORT SISWA ===');
 
 // 1. Import tanpa auth harus 401
-let r = await call('api/admin/import-students.js', { body: { kelas: '7', paralel: 'A', rows: [] } });
+let r = await call('server/admin/import-students.js', { body: { kelas: '7', paralel: 'A', rows: [] } });
 check('tanpa token -> 401', r.status === 401, `(got ${r.status})`);
 
 // 2. Import valid
-r = await call('api/admin/import-students.js', {
+r = await call('server/admin/import-students.js', {
   headers: authHeaders,
   body: {
     kelas: '7',
@@ -76,7 +76,7 @@ check('password 8 char', acc.every((a) => a.password.length === 8));
 check('kelas 7A', acc.every((a) => a.kelas === '7A'));
 
 // 3. Duplikat import -> semua dilewati
-let r2 = await call('api/admin/import-students.js', {
+let r2 = await call('server/admin/import-students.js', {
   headers: authHeaders,
   body: { kelas: '7', paralel: 'A', rows: [{ no: 1, nama_lengkap: 'Ahmad Nisn', nisn: '1234567890' }] },
 });
@@ -84,13 +84,13 @@ check('re-import -> skipped 1', r2.json?.skipped === 1, `(got ${r2.json?.skipped
 
 // 4. Login siswa hasil import dengan username saja
 const passAuto = autoAcc.password;
-const { query } = await import(pathToFileURL(path.join(__dirname, '..', 'api/_lib/db.js')).href);
+const { query } = await import(pathToFileURL(path.join(__dirname, '..', 'server/_lib/db.js')).href);
 const row = await query('SELECT email, password_hash FROM students WHERE email = $1', [autoAcc.email]);
 const bcrypt = (await import('bcryptjs')).default;
 check('hash cocok di DB', await bcrypt.compare(passAuto, row.rows[0].password_hash));
 
 // Login handler dengan username (bukan email penuh)
-const { queryOne } = await import(pathToFileURL(path.join(__dirname, '..', 'api/_lib/db.js')).href);
+const { queryOne } = await import(pathToFileURL(path.join(__dirname, '..', 'server/_lib/db.js')).href);
 const stu = await queryOne('SELECT * FROM students WHERE email = $1', [autoAcc.email]);
 check('siswa ada di DB', !!stu);
 check('status awal pending_incomplete', stu.overall_status === 'pending_incomplete');

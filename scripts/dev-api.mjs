@@ -12,7 +12,7 @@ dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const API_DIR = path.join(__dirname, '..', 'api');
+const API_DIR = path.join(__dirname, '..', 'server');
 const PORT = process.env.DEV_API_PORT || 3000;
 
 /** Tambah helper Express-style (status/json/send/redirect) ke res Node murni,
