@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../hooks/useAuth';
 import LoginForm from './LoginForm';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuthStore();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showInfo, setShowInfo] = useState(true);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -47,30 +46,6 @@ export default function LoginPage() {
             Login untuk mengupload dokumen KTP, KK, dan Akte
           </p>
         </div>
-
-        {/* Info cara login */}
-        {showInfo && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex gap-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-blue-600" />
-              <p className="text-sm font-semibold text-blue-900">Cara Login:</p>
-            </div>
-            <ul className="text-sm text-blue-800 space-y-1 ml-7">
-              <li>
-                • <strong>Siswa:</strong> Email dari sekolah + password awal diberikan guru
-              </li>
-              <li>
-                • <strong>Admin:</strong> admin / 123456
-              </li>
-            </ul>
-            <button
-              onClick={() => setShowInfo(false)}
-              className="text-xs text-blue-600 mt-2 underline"
-            >
-              Tutup
-            </button>
-          </div>
-        )}
 
         {/* Error Alert */}
         {error && (
