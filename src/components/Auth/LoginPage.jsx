@@ -42,6 +42,9 @@ export default function LoginPage() {
             📸
           </div>
           <h1 className="text-2xl font-bold text-gray-900">OCR Scan Dokumen Siswa</h1>
+          <p className="text-sm font-semibold text-blue-800 mt-2 uppercase tracking-wide">
+            SMP Negeri 26 Balikpapan
+          </p>
           <p className="text-sm text-gray-600 mt-1">
             Login untuk mengupload dokumen KTP, KK, dan Akte
           </p>
