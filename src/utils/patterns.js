@@ -1,10 +1,24 @@
 // src/utils/patterns.js
 
+/**
+ * Normalisasi hasil OCR untuk field angka (NIK / No. KK / No. Akte): mapikan
+ * huruf yang sering salah baca oleh OCR kembali ke digit yang benar.
+ * Berlaku karena field-field tersebut seharusnya 100% numerik.
+ */
+export function normalizeOCRDigits(value) {
+  return String(value ?? '')
+    .replace(/[Oo]/g, '0')
+    .replace(/[Il|]/g, '1')
+    .replace(/[Ss]/g, '5')
+    .replace(/[Gg]/g, '6')
+    .replace(/[Bb]/g, '8');
+}
+
 export const REGEX_PATTERNS = {
   ktp: {
     nik: {
-      pattern: /(?:NIK\s*:?\s*)?(\d{4}\s?\d{4}\s?\d{4}\s?\d{4}|\d{16})/i,
-      format: (val) => val.replace(/\s/g, ''),
+      pattern: /(?:NIK\s*:?\s*)?(\d{4}\s?\d{4}\s?\d{4}\s?\d{4}|[0-9OoIl|SsGgBb]{16})/i,
+      format: (val) => normalizeOCRDigits(val).replace(/\s/g, ''),
       validate: (val) => val.length === 16 && /^\d{16}$/.test(val),
     },
     nama: {
@@ -18,7 +32,7 @@ export const REGEX_PATTERNS = {
       validate: (val) => /^[A-Z\s]{3,30}$/.test(val),
     },
     tanggalLahir: {
-      pattern: /(?:LAHIR\s*:.*?)(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/,
+      pattern: /(?:LAHIR\s*:.*?)(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/i,
       format: (val) => {
         const match = val.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
         if (!match) return val;
@@ -52,16 +66,22 @@ export const REGEX_PATTERNS = {
       validate: (val) => /^(ISLAM|KRISTEN|KATOLIK|HINDU|BUDDHA|KONGHUCU)$/.test(val),
     },
     alamat: {
-      pattern: /(?:ALAMAT|JL\.?)\s*:?\s*(?:JL\.?|JALAN)?\s*(.+?)(?=RT|RW|KEL|DESA|$)/i,
-      format: (val) => val.trim().toUpperCase(),
+      pattern: /(?:ALAMAT|JL\.?)\s*:?\s*((?:JL\.?|JALAN)?[^\n]+)/i,
+      format: (val) => {
+        const trimmed = val.trim().toUpperCase();
+        // JALAN -> JL.; bila "JL" tanpa titik -> "JL. "
+        return trimmed
+          .replace(/^JALAN/, 'JL. ')
+          .replace(/^JL(?!\.)/, 'JL. ');
+      },
       validate: (val) => val.length > 0,
     },
     rtRw: {
-      pattern: /(?:RT\/RW\s*:?\s*)(\d{2,4})[\s\/\\](\d{2,4})/,
+      pattern: /(?:RT\s*\/\s*RW)\s*:?\s*(\d{2,4}\s*[\/\\]\s*\d{2,4})/i,
       format: (val) => {
-        const match = val.match(/(\d{2,4})[\s\/\\](\d{2,4})/);
+        const match = val.match(/(\d{2,4})\s*[\/\\]\s*(\d{2,4})/);
         if (!match) return val;
-        return `${String(match[1]).padStart(4, '0')}/${String(match[2]).padStart(4, '0')}`;
+        return `${String(match[1]).trim().padStart(4, '0')}/${String(match[2]).trim().padStart(4, '0')}`;
       },
       validate: (val) => /^\d{4}\/\d{4}$/.test(val),
     },
@@ -71,12 +91,12 @@ export const REGEX_PATTERNS = {
       validate: (val) => /^[A-Z\s]{3,50}$/.test(val),
     },
     kecamatan: {
-      pattern: /(?:KECAMATAN|KEC\.?)\s*:?\s*([A-Z\s]{3,50}?)(?=KAB|KABUPATEN|KOTA|PROVINSI|$)/i,
+      pattern: /(?:KECAMATAN|KEC\.?)\s*:?\s*([A-Z\s]{3,50}?)(?=\n|$)/i,
       format: (val) => val.trim().toUpperCase(),
       validate: (val) => /^[A-Z\s]{3,50}$/.test(val),
     },
     kabupaten: {
-      pattern: /(?:KAB(?:UPATEN)?|KOTA)\.?\s*:?\s*([A-Z\s]{3,50}?)(?=PROVINSI|$)/i,
+      pattern: /(?:KAB(?:UPATEN)?|KOTA)\.?\s*:?\s*([A-Z\s]{3,50}?)(?=\n|$)/i,
       format: (val) => val.trim().toUpperCase(),
       validate: (val) => /^[A-Z\s]{3,50}$/.test(val),
     },
@@ -88,8 +108,8 @@ export const REGEX_PATTERNS = {
   },
 kk: {
     noKk: {
-      pattern: /(?:NO\.?\s*KK|NOMOR\s+KARTU\s+KELUARGA)\s*:?\s*(\d{4}\s?\d{4}\s?\d{4}\s?\d{4}|\d{16})/i,
-      format: (val) => val.replace(/\s/g, ''),
+      pattern: /(?:NO\.?\s*KK|NOMOR\s+KARTU\s+KELUARGA)\s*:?\s*(\d{4}\s?\d{4}\s?\d{4}\s?\d{4}|[0-9OoIl|SsGgBb]{16})/i,
+      format: (val) => normalizeOCRDigits(val).replace(/\s/g, ''),
       validate: (val) => val.length === 16 && /^\d{16}$/.test(val),
     },
     nama: {
@@ -98,20 +118,28 @@ kk: {
       validate: (val) => /^[A-Z\s]{3,50}$/.test(val),
     },
     nik: {
-      pattern: /(?:NIK\s*:?\s*)(\d{16})/i,
-      format: (val) => val.replace(/\s/g, ''),
+      pattern: /(?:NIK\s*:?\s*)(\d{16}|[0-9OoIl|SsGgBb]{16})/i,
+      format: (val) => normalizeOCRDigits(val).replace(/\s/g, ''),
       validate: (val) => /^\d{16}$/.test(val),
     },
     ttl: {
-      pattern: /(?:TEMPAT.*?LAHIR|LAHIR)\s*:?\s*([A-Z\s]+)(?:\s*,|\/)\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/i,
-      format: (val) => val.trim(),
-      validate: (val) => val.length > 0,
+      pattern: /(?:TEMPAT(?:\s*TGL)?\s*LAHIR|LAHIR)\s*:?\s*([A-Z\s]{3,40}?(?:\s*,\s*|\s*\/\s*)\s*\d{1,2}[-/]\d{1,2}[-/]\d{4}|[A-Z\s]{3,40}?\s*(?=TANGGAL\s*LAHIR)[\s\S]*?\d{1,2}[-/]\d{1,2}[-/]\d{4})/i,
+      format: (val) => {
+        const stripped = val.replace(/TANGGAL\s*LAHIR\s*:?\s*/gi, '');
+        return stripped
+          .replace(/\n+/g, ', ')
+          .replace(/\s+/g, ' ')
+          .replace(/\s*,\s*/g, ', ')
+          .trim()
+          .toUpperCase();
+      },
+      validate: (val) => /[A-Z]{2,}/.test(val) && /\d{1,2}[-/]\d{1,2}[-/]\d{4}/.test(val),
     },
   },
 
   akte: {
     nomorAkte: {
-      pattern: /(?:NOMOR\s+(?:SURAT|AKTE)|NO\.?)\s*:?\s*([A-Z0-9\-\/]{5,30})/i,
+      pattern: /(?:NOMOR\s+(?:SURAT|AKTE)|NOMOR|NO\.?)\s*:?\s*([A-Z0-9\-\/]{5,30})/i,
       format: (val) => val.toUpperCase(),
       validate: (val) => /^[A-Z0-9\-\/]{5,30}$/.test(val),
     },
@@ -166,8 +194,8 @@ kk: {
       validate: (val) => /^[A-Z\s]{3,50}$/.test(val),
     },
     nikIbu: {
-      pattern: /(?:NIK\s+IBU|NIK\s*\/\s*NO\s+KTP\s+IBU)\s*:?\s*(\d{16})/i,
-      format: (val) => val.replace(/\s/g, ''),
+      pattern: /(?:NIK\s+IBU|NIK\s*\/\s*NO\s+KTP\s+IBU)\s*:?\s*(\d{16}|[0-9OoIl|SsGgBb]{16})/i,
+      format: (val) => normalizeOCRDigits(val).replace(/\s/g, ''),
       validate: (val) => /^\d{16}$/.test(val),
     },
   },
