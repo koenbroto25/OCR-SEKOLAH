@@ -1,0 +1,42 @@
+{
+  "name": "ocr-sekolah",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "api": "node --watch scripts/dev-api.mjs",
+    "dev:api": "node --watch scripts/dev-api.mjs",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1121.0",
+    "@aws-sdk/s3-request-presigner": "^3.1121.0",
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "compressorjs": "^1.2.1",
+    "dotenv": "^17.4.2",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.294.0",
+    "pg": "^8.23.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.48.2",
+    "react-router-dom": "^6.20.0",
+    "sharp": "^0.33.0",
+    "tesseract.js": "^5.0.0",
+    "xlsx": "^0.18.5",
+    "zustand": "^4.4.6"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "vite": "^5.0.0"
+  }
+}

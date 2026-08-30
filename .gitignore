@@ -1,0 +1,38 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build
+dist
+dist-ssr
+*.local
+
+# Vercel
+.vercel
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Env (keep .env.example, ignore real credentials)
+.env
+.env.local
+.env.production
+.env.*
+!.env.example
+neon-storage.env
+service-account-key.json
+api-test-*.log

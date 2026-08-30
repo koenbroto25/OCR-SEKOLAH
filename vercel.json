@@ -1,0 +1,26 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "env": [
+    "DATABASE_URL",
+    "VITE_GOOGLE_DRIVE_FOLDER_ID",
+    "VITE_JWT_SECRET",
+    "VITE_ADMIN_PASSWORD_HASH"
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
